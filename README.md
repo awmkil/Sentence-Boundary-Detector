@@ -28,10 +28,10 @@ I used a **Naive Bayes Classifier** because it gave better results than the othe
 
 ## Dependencies
 
-- nltk
-- Numpy
-- BeautifulSoup (bs4)
-- tqdm
+- nltk 3.4.5
+- Numpy 1.17.4
+- BeautifulSoup (```pip3 install bs4 (--user)```) 0.0.1
+- tqdm 4.40.0
 
 ## Running the program
 ```
@@ -77,5 +77,3 @@ This will save a modified HTML file with the ```<span>``` tags to ```output_file
 - The program seem to struggle in some situations (ex: '...')
 - The program does not properly write the ```<span>``` tags. I think it's a text encoding issue with the ``` '<,>' ``` characters since the raw HTML shows them as ```&lt, &gt```
 - Some edge cases are ignored.
-
-I think most of these issues can be fixed, but I could not invest more time in this project.
