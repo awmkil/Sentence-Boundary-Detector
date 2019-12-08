@@ -114,7 +114,7 @@ class Detector:
             "left_word": left_right_couple[0],
             "right_word": left_right_couple[1],
             "left_word_length": len(left_right_couple[0]),
-            "right_word_lenght": len(left_right_couple[1]),
+            # "right_word_lenght": len(left_right_couple[1]),
             "is_right_word_upper": left_right_couple[1][:1].isupper(),
             # "logn_right_word_capital_occurences": int(np.log(self.data_set.count(word_pair[1]))),
         }
@@ -125,20 +125,25 @@ class Detector:
         """
 
         # Get training data
+        print("Getting training data...")
         left_right_couples, labels, sentence_number = self.get_training_data()
 
         # Get and format featureset
-        for (left_right_couple, label) in zip(left_right_couples, labels):
-            featuresets = [(self.get_features(left_right_couple), label)]
+        print("Extracting features...")
+        featuresets = [
+            (self.get_features(left_right_couple), label)
+            for (left_right_couple, label) in zip(left_right_couples, labels)
+        ]
 
         # Divide into train and test set
         train_size = 0.8
         train_limit_idx = int(len(featuresets)*train_size)
         train_set, test_set = featuresets[:train_limit_idx], featuresets[train_limit_idx:]
-
         # Train classifier and print accuracy
+        print("Training...")
         self.classifier = nltk.NaiveBayesClassifier.train(train_set)
-        print("Accuracy: " + str(nltk.classify.accuracy(self.classifier, test_set)))
+        print("Success! Accuracy: " +
+              str(nltk.classify.accuracy(self.classifier, test_set)))
 
     def save_model(self, model_path):
         """
@@ -160,6 +165,7 @@ class Detector:
         """
         Given a HTML file, converts it into a BeautifulSoup object.
         """
+        print("Reading HTML from : " + htlm_file_path)
         with open(htlm_file_path, "r") as source:
             html = BeautifulSoup(source, features="html.parser")
             return html
@@ -196,6 +202,7 @@ class Detector:
 
         return left_right_couples_candidates, positions
 
+
     def label_HTML(self, htlm_file_path):
         """
         Given an HTML file, wrap each sentence in a <span> tag and returns the modified HTML file.
@@ -203,7 +210,8 @@ class Detector:
 
         # Read HTML
         html_soup = self.read_html(htlm_file_path)
-
+        print("Processing HTML file...")
+        
         # Init prediction list
         predictions = []
 
@@ -298,15 +306,42 @@ class Detector:
         """
         Writes BeautifulSoup to HTML file.
         """
+        print("Segmented HTML file saved to : " + htlm_file_path)
         with open(htlm_file_path, 'w') as f:
             f.write(new_html_data)
 
 
-detector = Detector()
+if __name__ == "__main__":
+    from argparse import ArgumentParser
 
-# detector.train_model()
-# detector.save_model("./model.pickle")
+    argparser = ArgumentParser(
+        prog="python3 -m sentence_boundaries_detector", description="Sentence boundary detector for HTML ebooks."
+    )
 
-detector.load_model("./model.pickle")
-new_html_data = detector.label_HTML("./sample_files/the_little_prince.html")
-detector.save_HTML(new_html_data, "./fini.html")
+    argparser.add_argument(
+        "-l", "--load", help="Run the program using a trained model saved to your computer.")
+    argparser.add_argument(
+        "-t", "--train", help="Train and write out serialized model.")
+    argparser.add_argument(
+        "-i", "--input", help="Segment sentences from an input HTML file.")
+    argparser.add_argument(
+        "-s", "--save", help="Save semented HTML file.")
+
+    args = argparser.parse_args()
+
+    # Input block
+    detector = Detector()
+
+    if args.load:
+        detector.load_model(args.load)
+
+    else:
+        detector.train_model()
+        detector.save_model(args.train)
+
+    # Output block
+    if args.input:
+        new_html_data = detector.label_HTML(args.input)
+
+    if args.save:
+        detector.save_HTML(new_html_data, args.save)

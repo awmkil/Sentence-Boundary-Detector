@@ -1,2 +1,5 @@
 # Models
 *.pickle
+
+# Python crap
+__pycache__/
