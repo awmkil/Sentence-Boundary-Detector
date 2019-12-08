@@ -4,9 +4,9 @@ Detects sentence boundaries of HTML eBooks using a trained classifier, and put d
 
 # Sample output
 
-![alt text][example]
+![][example]
 
-[example]: https://github.com/awmkil/Sentence-Boundary-Detector/tree/master/.data/img.png "Test picture"
+[example]: https://github.com/awmkil/Sentence-Boundary-Detector/blob/master/.data/img.png "Test picture"
 
 # Method
 
